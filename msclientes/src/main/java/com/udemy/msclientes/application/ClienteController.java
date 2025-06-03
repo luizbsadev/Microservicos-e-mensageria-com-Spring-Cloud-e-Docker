@@ -1,5 +1,6 @@
 package com.udemy.msclientes.application;
 
+import com.udemy.msclientes.domain.dto.ClienteInteiroDto;
 import com.udemy.msclientes.domain.dto.SalvarClienteDto;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import com.udemy.msclientes.domain.Cliente;
 import com.udemy.msclientes.service.ClienteService;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Optional;
@@ -21,7 +21,7 @@ public class ClienteController {
 
 	
 	@PostMapping
-	ResponseEntity<Cliente> SalvarConta(@RequestBody SalvarClienteDto dto) {
+	ResponseEntity<Cliente> salvarConta(@RequestBody SalvarClienteDto dto) {
 		Optional<Cliente> talvezUmCliente = service.salvar(dto.criarCliente());
 		if(talvezUmCliente.isPresent()) {
 			Cliente cliente = talvezUmCliente.get();
@@ -37,4 +37,14 @@ public class ClienteController {
 			return ResponseEntity.badRequest().build();
 		}
 	}
+
+	@GetMapping
+	ResponseEntity<ClienteInteiroDto> getByCpf(@RequestParam("cpf") String cpf){
+		Optional<Cliente> talvezUmCliente = service.getByCpf(cpf);
+
+        return talvezUmCliente.map(cliente -> ResponseEntity.ok(new ClienteInteiroDto(cliente)))
+				.orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
 }

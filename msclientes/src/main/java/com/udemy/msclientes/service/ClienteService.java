@@ -17,5 +17,8 @@ public class ClienteService {
 	public Optional<Cliente> salvar(Cliente cliente) {
 		return Optional.of(repository.save(cliente));
 	}
-	
+
+	public Optional<Cliente> getByCpf(String cpf) {
+		return repository.findByCpf(cpf);
+	}
 }
