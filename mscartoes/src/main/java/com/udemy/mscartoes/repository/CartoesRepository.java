@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface CartoesRepository extends JpaRepository<Cartao, Long> {
-    List<Cartao> findByLimiteLessThan(BigDecimal renda);
+    List<Cartao> findByRendaLessThan(BigDecimal renda);
 }

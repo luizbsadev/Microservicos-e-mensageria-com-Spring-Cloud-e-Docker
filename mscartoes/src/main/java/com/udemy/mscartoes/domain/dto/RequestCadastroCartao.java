@@ -1,4 +1,4 @@
-package com.udemy.mscartoes.applications.dto;
+package com.udemy.mscartoes.domain.dto;
 
 import com.udemy.mscartoes.domain.Bandeira;
 import com.udemy.mscartoes.domain.Cartao;

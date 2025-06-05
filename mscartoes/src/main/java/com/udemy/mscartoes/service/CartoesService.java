@@ -19,7 +19,7 @@ public class CartoesService {
         return cartao;
     }
 
-    public List<Cartao> listarCartaoPorRendaLimite(BigDecimal renda) {
-        return repository.findByLimiteLessThan(renda);
+    public List<Cartao> listarCartaoPorRenda(BigDecimal renda) {
+        return repository.findByRendaLessThan(renda);
     }
 }
