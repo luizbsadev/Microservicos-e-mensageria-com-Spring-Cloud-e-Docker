@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("cliente")
+@RequestMapping("clientes")
 @AllArgsConstructor
 public class ClienteController {
 	private ClienteService service;
