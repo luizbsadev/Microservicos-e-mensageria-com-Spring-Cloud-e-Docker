@@ -30,8 +30,8 @@ public class MsCartoesController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping
-    ResponseEntity<List<ResponseListarCartao>> listarCartaoPorRenda(@Param("renda") Integer renda){
+    @GetMapping(params = "renda")
+    ResponseEntity<List<ResponseListarCartao>> listarCartaoPorRenda(@RequestParam("renda") Integer renda){
         List<Cartao> listaDeCartoes = cartoesService.listarCartaoPorRenda(BigDecimal.valueOf(renda));
         List<ResponseListarCartao> response = listaDeCartoes
                                                     .stream()
@@ -41,8 +41,8 @@ public class MsCartoesController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    ResponseEntity<List<ResponseListarCartaoPorCPF>> listarCartaoPorCpf(@Param("cpf") String cpf){
+    @GetMapping(params = "cpf")
+    ResponseEntity<List<ResponseListarCartaoPorCPF>> listarCartaoPorCpf(@RequestParam("cpf") String cpf){
         List<ClienteCartao> lista = clienteCartaoService.findByCpf(cpf);
         List<ResponseListarCartaoPorCPF> response = lista
                                                         .stream()
