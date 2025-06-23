@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("avalicoes-credito")
+@RequestMapping("avaliacoes-credito")
 @AllArgsConstructor
 public class MsAvaliadorCreditoController {
     private final AvaliadorCreditoService avaliadorCreditoService;
