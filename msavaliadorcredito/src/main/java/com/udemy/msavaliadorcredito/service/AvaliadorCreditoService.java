@@ -1,10 +1,16 @@
 package com.udemy.msavaliadorcredito.service;
 
+import com.udemy.msavaliadorcredito.application.exception.DadosClienteNotFoundException;
+import com.udemy.msavaliadorcredito.application.exception.ErroComunicacaoMicroservicesException;
 import com.udemy.msavaliadorcredito.domain.*;
+import com.udemy.msavaliadorcredito.domain.CartaoAprovado;
 import com.udemy.msavaliadorcredito.domain.dto.RetornoAvaliacaoClienteDTO;
+import com.udemy.msavaliadorcredito.domain.dto.SituacaoClienteDTO;
 import com.udemy.msavaliadorcredito.infra.clients.CartoesResourceClient;
 import com.udemy.msavaliadorcredito.infra.clients.ClienteResourceClient;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,42 +25,51 @@ public class AvaliadorCreditoService {
     private final ClienteResourceClient clientesClient;
     private final CartoesResourceClient cartoesClient;
 
-    public SituacaoCliente obterSituacaoCliente(String cpf) {
-        ResponseEntity<DadosCliente> dadosClienteResponse = clientesClient.dadosCliente(cpf);
-        ResponseEntity<List<CartaoCliente>> cartoesResponse = cartoesClient.getCartoesByCliente(cpf);
+    public SituacaoClienteDTO obterSituacaoCliente(String cpf) throws DadosClienteNotFoundException, ErroComunicacaoMicroservicesException {
+        try {
+            ResponseEntity<DadosCliente> dadosClienteResponse = clientesClient.dadosCliente(cpf);
+            ResponseEntity<List<CartaoCliente>> cartoesResponse = cartoesClient.getCartoesByCliente(cpf);
 
-        return SituacaoCliente
-                .builder()
-                .cliente(dadosClienteResponse.getBody())
-                .cartoes(cartoesResponse.getBody())
-                .build();
+            return new SituacaoClienteDTO(dadosClienteResponse.getBody(), cartoesResponse.getBody());
+        }catch(FeignException.FeignClientException e) {
+            int status = e.status();
+            if (HttpStatus.NOT_FOUND.value() == status)
+                throw new DadosClienteNotFoundException();
+            else
+                throw new ErroComunicacaoMicroservicesException(e.getMessage(), e.status());
+
+        }
+
 
     }
 
-    public RetornoAvaliacaoClienteDTO realizarAvaliacao(String cpf, Long renda) {
-
+    public RetornoAvaliacaoClienteDTO realizarAvaliacao(String cpf, Long renda) throws DadosClienteNotFoundException, ErroComunicacaoMicroservicesException {
+        try {
             ResponseEntity<DadosCliente> dadosClienteResponse = clientesClient.dadosCliente(cpf);
             ResponseEntity<List<Cartao>> cartoesResponse = cartoesClient.getCartoesRendaAteh(renda);
 
+
             List<Cartao> cartoes = cartoesResponse.getBody();
-            var listaCartoesAprovados = cartoes.stream().map(cartao -> {
+            List<CartaoAprovado> listaCartoesAprovados = cartoes.stream().map(cartao -> {
 
                 DadosCliente dadosCliente = dadosClienteResponse.getBody();
 
-                BigDecimal limiteBasico = cartao.getLimiteBasico();
+                BigDecimal limiteBasico = cartao.getLimite();
                 BigDecimal idadeBD = BigDecimal.valueOf(dadosCliente.getIdade());
                 var fator = idadeBD.divide(BigDecimal.valueOf(10));
                 BigDecimal limiteAprovado = fator.multiply(limiteBasico);
 
-                CartaoAprovado aprovado = new CartaoAprovado();
-                aprovado.setCartao(cartao.getNome());
-                aprovado.setBandeira(cartao.getBandeira());
-                aprovado.setLimiteAprovado(limiteAprovado);
-
-                return aprovado;
+                return new CartaoAprovado(cartao, limiteAprovado);
             }).collect(Collectors.toList());
 
             return new RetornoAvaliacaoClienteDTO(listaCartoesAprovados);
+        }catch(FeignException.FeignClientException e) {
+            int status = e.status();
+            if (HttpStatus.NOT_FOUND.value() == status)
+                throw new DadosClienteNotFoundException();
+            else
+                throw new ErroComunicacaoMicroservicesException(e.getMessage(), e.status());
 
+        }
     }
 }

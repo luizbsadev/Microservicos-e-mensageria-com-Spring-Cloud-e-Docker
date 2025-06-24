@@ -1,12 +1,10 @@
 package com.udemy.msavaliadorcredito.domain;
 
-import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Data
-public class CartaoAprovado {
-    private String cartao;
-    private String bandeira;
-    private BigDecimal limiteAprovado;
+public record CartaoAprovado(String cartao, String bandeira, BigDecimal limiteAprovado) {
+     public CartaoAprovado(Cartao cartao, BigDecimal limiteAprovado){
+         this(cartao.getNome(), cartao.getBandeira(), limiteAprovado);
+     }
 }

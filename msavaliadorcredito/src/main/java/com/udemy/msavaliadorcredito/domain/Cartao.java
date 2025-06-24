@@ -9,5 +9,5 @@ public class Cartao {
     private Long id;
     private String nome;
     private String bandeira;
-    private BigDecimal limiteBasico;
+    private BigDecimal limite;
 }
