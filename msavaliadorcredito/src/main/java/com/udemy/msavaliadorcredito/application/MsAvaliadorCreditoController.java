@@ -2,9 +2,7 @@ package com.udemy.msavaliadorcredito.application;
 
 import com.udemy.msavaliadorcredito.application.exception.DadosClienteNotFoundException;
 import com.udemy.msavaliadorcredito.application.exception.ErroComunicacaoMicroservicesException;
-import com.udemy.msavaliadorcredito.domain.dto.SituacaoClienteDTO;
-import com.udemy.msavaliadorcredito.domain.dto.DadosAvaliacaoDTO;
-import com.udemy.msavaliadorcredito.domain.dto.RetornoAvaliacaoClienteDTO;
+import com.udemy.msavaliadorcredito.domain.dto.*;
 import com.udemy.msavaliadorcredito.service.AvaliadorCreditoService;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties;
@@ -47,6 +45,14 @@ public class MsAvaliadorCreditoController {
         }catch (ErroComunicacaoMicroservicesException e){
             return ResponseEntity.status(HttpStatus.resolve(e.getStatus())).build();
         }
-
+    }
+    @PostMapping("solicitacoes-cartao")
+    public ResponseEntity solicitaCartao(@RequestBody DadosSolicitacaoEmissaoCartaoDTO dados){
+        try{
+            ProtocoloSolicitacaoCartaoDTO protocolo = avaliadorCreditoService.solicitarCartao(dados);
+            return ResponseEntity.ok(protocolo);
+        }catch (Exception e ){
+            return ResponseEntity.internalServerError().body(e);
+        }
     }
 }

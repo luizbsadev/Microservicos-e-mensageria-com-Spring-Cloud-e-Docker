@@ -1,13 +1,17 @@
 package com.udemy.msavaliadorcredito.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.udemy.msavaliadorcredito.application.exception.DadosClienteNotFoundException;
 import com.udemy.msavaliadorcredito.application.exception.ErroComunicacaoMicroservicesException;
 import com.udemy.msavaliadorcredito.domain.*;
 import com.udemy.msavaliadorcredito.domain.CartaoAprovado;
+import com.udemy.msavaliadorcredito.domain.dto.DadosSolicitacaoEmissaoCartaoDTO;
+import com.udemy.msavaliadorcredito.domain.dto.ProtocoloSolicitacaoCartaoDTO;
 import com.udemy.msavaliadorcredito.domain.dto.RetornoAvaliacaoClienteDTO;
 import com.udemy.msavaliadorcredito.domain.dto.SituacaoClienteDTO;
 import com.udemy.msavaliadorcredito.infra.clients.CartoesResourceClient;
 import com.udemy.msavaliadorcredito.infra.clients.ClienteResourceClient;
+import com.udemy.msavaliadorcredito.infra.mqrabbit.EmissaoCartaoPublisher;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +29,7 @@ public class AvaliadorCreditoService {
 
     private final ClienteResourceClient clientesClient;
     private final CartoesResourceClient cartoesClient;
+    private final EmissaoCartaoPublisher publisher;
 
     public SituacaoClienteDTO obterSituacaoCliente(String cpf) throws DadosClienteNotFoundException, ErroComunicacaoMicroservicesException {
         try {
@@ -70,6 +76,16 @@ public class AvaliadorCreditoService {
             else
                 throw new ErroComunicacaoMicroservicesException(e.getMessage(), e.status());
 
+        }
+    }
+
+    public ProtocoloSolicitacaoCartaoDTO solicitarCartao(DadosSolicitacaoEmissaoCartaoDTO dados) {
+        try{
+            publisher.solicitarCartao(dados);
+            String protocolo = UUID.randomUUID().toString();
+            return new ProtocoloSolicitacaoCartaoDTO(protocolo);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
