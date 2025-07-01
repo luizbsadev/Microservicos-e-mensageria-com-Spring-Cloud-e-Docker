@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: msavaliadorcredito
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        register: true
+        deregister: true
+        health-check-path: /actuator/health
+    rabbitmq:
+      host: localhost
+      port: 5672
+      username: guest
+      password: guest
+
+server:
+  port: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+mq:
+  queues:
+    emissao-cartoes: emissao-cartoes
